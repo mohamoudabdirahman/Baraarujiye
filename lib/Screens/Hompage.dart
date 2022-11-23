@@ -8,6 +8,7 @@ import 'package:baraarujiyeapp/Screens/AddProduct.dart';
 import 'package:baraarujiyeapp/Screens/ProductInformation.dart';
 import 'package:baraarujiyeapp/Screens/expiredPoducts.dart';
 import 'package:baraarujiyeapp/Screens/information.dart';
+import 'package:baraarujiyeapp/utils/noproducts.dart';
 import 'package:baraarujiyeapp/utils/product_Tile.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
@@ -32,9 +33,12 @@ class _HomePageState extends State<HomePage>
   bool isexpired = false;
   var numberofexpired;
   late TabController tabController;
+  final languages = ['So', 'Eng'];
+  String? selectedlan;
   //bool? istapped = false;
   Box<Products> databox = Hive.box<Products>('Products');
   var modeStatus = Hive.box('modeStatus');
+  var language = Hive.box('Language');
   bool tapped = false;
 
   //PageController _controller = PageController();
@@ -94,25 +98,25 @@ class _HomePageState extends State<HomePage>
     // await fltrnotification.show(
     //     0, 'Pasta', 'Pasta is expiring today', generalDetals);
     //var scheduledTime = DateTime.now().add(const Duration(seconds: 5));
-    fltrnotification.periodicallyShow(
-        1, productname, desc, RepeatInterval.daily, generalDetals);
-    // zonedSchedule(1, productname, desc,
-    //     dailynotification(const Time(10, 45)), generalDetals,
-    //     uiLocalNotificationDateInterpretation:
-    //         UILocalNotificationDateInterpretation.absoluteTime,
-    //     matchDateTimeComponents: DateTimeComponents.time,
+    // fltrnotification.periodicallyShow(
+    //     1, productname, desc, RepeatInterval.everyMinute ,generalDetals,
     //     androidAllowWhileIdle: true);
+    fltrnotification.zonedSchedule(1, productname, desc,
+        dailynotification(const Time(9,00)), generalDetals,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        androidAllowWhileIdle: true);
   }
 
-  dailynotification(Time time) {
+  static tz.TZDateTime dailynotification(Time time) {
     final now = tz.TZDateTime.now(tz.local);
     final schedule = tz.TZDateTime(tz.local, now.year, now.month, now.day,
         time.hour, time.minute, time.second);
 
-    return schedule;
-    // return schedule.isBefore(now)
-    //     ? schedule.add(const Duration(days: 1))
-    //     : schedule;
+    return schedule.isBefore(now)
+        ? schedule.add(const Duration(days: 1))
+        : schedule;
   }
 
   @override
@@ -133,14 +137,20 @@ class _HomePageState extends State<HomePage>
             labelColor: AppColors().fourthAppColor,
             unselectedLabelColor: AppColors().thirdAppColor,
             tabs: [
-              Tab(
-                text: 'Active',
+               language.get('language') == 'Eng' ? Tab(
+                text:'Active'
+              ): Tab(
+                text:'Alaab shaqaynaysa'
               ),
-              Tab(
+              language.get('language') == 'Eng' ? Tab(
                 text: 'Expired',
+              ): Tab(
+                text: 'Alaab dhacday',
               ),
-              Tab(
+              language.get('language') == 'Eng' ? Tab(
                 text: 'Soon',
+              ): Tab(
+                text: 'Dhawaan',
               )
             ]),
         backgroundColor: AppColors().mainAppColor,
@@ -149,7 +159,36 @@ class _HomePageState extends State<HomePage>
                 color: AppColors().thirdAppColor,
                 letterSpacing: 3,
                 fontWeight: FontWeight.bold)),
-        centerTitle: true,
+        centerTitle: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(20)),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                    borderRadius: BorderRadius.circular(10),
+                    style: TextStyle(color: AppColors().fourthAppColor),
+                    dropdownColor: AppColors().secondaryAppColor,
+                    items: languages.map(builddropdown).toList(),
+                    value: language.get('language') == null ? 'So' : language.get('language'),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedlan = value;
+                        if (selectedlan == 'So') {
+                          language.put('language', 'So');
+                        } else if (selectedlan == 'Eng') {
+                          language.put('language', 'Eng');
+                        }
+                      });
+                      print(selectedlan);
+                      print(language.get('language'));
+                    }),
+              ),
+            ),
+          )
+        ],
         elevation: 0.0,
       ),
       floatingActionButton: Padding(
@@ -192,7 +231,9 @@ class _HomePageState extends State<HomePage>
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Today's Date",
+                            Text(
+                              language.get('language') == 'Eng'?
+                              "Today's Date": "Taariikhda Maanta",
                                 style: GoogleFonts.roboto(
                                     fontSize: 24,
                                     color: AppColors().thirdAppColor,
@@ -239,38 +280,45 @@ class _HomePageState extends State<HomePage>
                       ListView.builder(
                           itemCount: box.values.length,
                           itemBuilder: ((context, index) {
-                            Products currentProduct = box.getAt(index)!;
-                            if (currentProduct.expiringDate!
-                                .isAfter(DateTime.now())) {
-                              return GestureDetector(
-                                  onTap: () {
-                                    print(currentProduct.productName);
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProductInfomation(
-                                                  products: currentProduct,
-                                                  index: index,
-                                                  onclose: () {},
-                                                )));
-                                  },
-                                  child: ProductTile(currentProduct, index));
-                            } else if (numberofexpired == null &&
-                                currentProduct.expired == true) {
-                              return Center(
-                                child: Text(
-                                  'No recorded products yet!',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: AppColors().fourthAppColor),
-                                ),
-                              );
+                            if (databox.isEmpty) {
+                              return NoProducts();
+                            } else {
+                              Products currentProduct = box.getAt(index)!;
+                              if (currentProduct.expiringDate!
+                                  .isAfter(DateTime.now())) {
+                                return GestureDetector(
+                                    onTap: () {
+                                      print(currentProduct.productName);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductInfomation(
+                                                    products: currentProduct,
+                                                    index: index,
+                                                  )));
+                                    },
+                                    child: ProductTile(currentProduct, index));
+                              } else if (numberofexpired == null &&
+                                  currentProduct.expired == true) {
+                                return Center(
+                                  child: Text(
+                                    language.get('language') == 'Eng' ?
+                                    'No recorded products yet!':'Ma jirto alaab diwaangeshan!',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: AppColors().fourthAppColor),
+                                  ),
+                                );
+                              }
                             }
+
                             return Container();
                           })),
                       ExpiredProducts(),
-                      ProductInfo(notified: false,)
+                      ProductInfo(
+                        notified: false,
+                      )
                     ]))
                   ]),
             ),
@@ -280,12 +328,24 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  DropdownMenuItem<String> builddropdown(String item) {
+    return DropdownMenuItem(
+        value: item,
+        child: Text(
+          item,
+          style: TextStyle(
+              color: AppColors().thirdAppColor, fontWeight: FontWeight.bold),
+        ));
+  }
+
   void notificationselected(String? payload) async {
     //var expiringProducts = databox.values;
     showDialog(
         context: context,
         builder: (context) {
-          return ProductInfo(notified: true,);
+          return ProductInfo(
+            notified: true,
+          );
         });
   }
 }

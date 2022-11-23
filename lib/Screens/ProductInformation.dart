@@ -5,16 +5,15 @@ import 'package:baraarujiyeapp/Model/Product_Model.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-class ProductInfomation extends StatelessWidget {
-  Function? onclose;
+class ProductInfomation extends StatefulWidget {
   String? productname;
   String? productdesc;
   String? dateofexpire;
   ProductInfomation(
       {Key? key,
       this.products,
-      this.onclose,
       this.productdesc,
       this.productname,
       this.index,
@@ -22,6 +21,13 @@ class ProductInfomation extends StatelessWidget {
       : super(key: key);
   Products? products;
   int? index;
+
+  @override
+  State<ProductInfomation> createState() => _ProductInfomationState();
+}
+
+class _ProductInfomationState extends State<ProductInfomation> {
+  var language = Hive.box('language');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +65,8 @@ class ProductInfomation extends StatelessWidget {
                         children: [
                           Center(
                             child: Text(
-                              'About this product',
+                              language.get('language') == 'Eng' ?
+                              'About this product': 'Warbixinta alaabtan',
                               style: TextStyle(
                                   fontSize: 20,
                                   color: AppColors().fourthAppColor),
@@ -75,7 +82,8 @@ class ProductInfomation extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Product Name',
+                                  language.get('language') == 'Eng' ?
+                                  'Product Name': 'Magaca Alaabta',
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: AppColors().thirdAppColor),
@@ -85,9 +93,9 @@ class ProductInfomation extends StatelessWidget {
                                   height: 10,
                                 ),
                                 Text(
-                                  products == null
+                                  widget.products == null
                                       ? ''
-                                      : products!.productName!,
+                                      : widget.products!.productName!,
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: AppColors().fourthAppColor),
@@ -96,7 +104,8 @@ class ProductInfomation extends StatelessWidget {
                                   height: 10,
                                 ),
                                 Text(
-                                  'Product Description',
+                                   language.get('language') == 'Eng' ?
+                                  'Product Description': 'Sharaxaada Alaabta',
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: AppColors().thirdAppColor),
@@ -106,9 +115,9 @@ class ProductInfomation extends StatelessWidget {
                                   height: 10,
                                 ),
                                 Text(
-                                  products == null
+                                  widget.products == null
                                       ? ''
-                                      : products!.description!,
+                                      : widget.products!.description!,
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: AppColors().fourthAppColor),
@@ -117,7 +126,8 @@ class ProductInfomation extends StatelessWidget {
                                   height: 10,
                                 ),
                                 Text(
-                                  'Date of expire',
+                                   language.get('language') == 'Eng' ?
+                                  'Date of expire': 'Taariikhda dhicitaanka',
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: AppColors().thirdAppColor),
@@ -127,9 +137,11 @@ class ProductInfomation extends StatelessWidget {
                                   height: 10,
                                 ),
                                 Text(
-                                  products == null
+                                  widget.products == null
                                       ? ''
-                                      : formatDate(products!.expiringDate!, [d, ", ", M, " ", yyyy]),
+                                      : formatDate(
+                                          widget.products!.expiringDate!,
+                                          [d, ", ", M, " ", yyyy]),
                                   style: TextStyle(
                                       fontSize: 20,
                                       color: AppColors().fourthAppColor),
@@ -147,11 +159,11 @@ class ProductInfomation extends StatelessWidget {
                               },
                               color: AppColors().mainAppColor,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
-                              ),
+                                  borderRadius: BorderRadius.circular(10)),
                               minWidth: 200,
                               child: Text(
-                                'Close',
+                                 language.get('language') == 'Eng' ?
+                                'Close': 'xidh',
                                 style: TextStyle(
                                     color: AppColors().fourthAppColor),
                               ),

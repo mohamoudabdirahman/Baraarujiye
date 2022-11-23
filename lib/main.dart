@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:baraarujiyeapp/Colors/colors.dart';
 import 'package:baraarujiyeapp/Model/Product_Model.dart';
 import 'package:baraarujiyeapp/Screens/Hompage.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +17,7 @@ Future<void> main() async {
   await Hive.openBox('date');
   await Hive.openBox('ispressed');
   await Hive.openBox('modeStatus');
+  await Hive.openBox('Language');
   box = await Hive.openBox<Products>('products');
   // box.add(
   //     Products( 'Fanta', 'this is fanta from SPI', DateTime.now(), false));
@@ -36,7 +41,13 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
           //primarySwatch: Colors.blue,
           ),
-      home: HomePage(),
+      home: AnimatedSplashScreen(
+          splash: Container(
+              child: Image.asset('lib/images/bararujiye logo name.png',height: 70,)),
+          splashTransition: SplashTransition.fadeTransition,
+          duration: 3000,
+          backgroundColor: AppColors().fourthAppColor,
+          nextScreen: HomePage()),
     );
   }
 }

@@ -36,6 +36,7 @@ class _AddProductScrenState extends State<AddProductScren> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   Box<Products> productBox = Hive.box<Products>('Products');
   final datebox = Hive.box('date');
+  var language = Hive.box('language');
   final ispresedcal = Hive.box('ispressed');
   var pickeddate;
 
@@ -73,7 +74,9 @@ class _AddProductScrenState extends State<AddProductScren> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Add Schedule',
+                Text(
+                  language.get('language') == 'Eng' ?
+                  'Add Schedule':'Diwaangeli alaab',
                     style: TextStyle(
                         fontSize: 25,
                         color: AppColors().thirdAppColor,
@@ -83,7 +86,7 @@ class _AddProductScrenState extends State<AddProductScren> {
                 ),
                 InputFields(
                   productNameController: _productName,
-                  labeling: 'Product Name',
+                  labeling: language.get('language') == 'Eng' ? 'Product Name':'Magaca Alaabta',
                   hintext:
                       widget.product == null ? '' : widget.product!.productName,
                 ),
@@ -92,7 +95,7 @@ class _AddProductScrenState extends State<AddProductScren> {
                 ),
                 InputFields(
                   productNameController: _productDescription,
-                  labeling: 'Product Description',
+                  labeling: language.get('language') == 'Eng' ? 'Product Description': 'Sharaxaada alaabta',
                   keybtype: TextInputType.multiline,
                   minline: 5,
                   hintext:
@@ -119,7 +122,7 @@ class _AddProductScrenState extends State<AddProductScren> {
                       borderRadius: BorderRadius.circular(12)),
                   color: AppColors().secondaryAppColor,
                   child: Text(
-                    widget.product == null ? 'Save' : 'Update',
+                    widget.product == null ? language.get('language') == 'Eng'? 'Save' : 'Diwaangeli' : language.get('language') == 'Eng' ? 'Update' : 'Cusbooneysi',
                     style: TextStyle(color: AppColors().fourthAppColor),
                   ),
                 )
@@ -172,7 +175,8 @@ class _AddProductScrenState extends State<AddProductScren> {
                 backgroundColor: AppColors().secondaryAppColor,
                 elevation: 1,
                 content: Text(
-                  'You have Successfully Updated Your Product',
+                   language.get('language') == 'Eng' ?
+                  'You have Successfully Updated Your Product': 'waad ku guuleysatay wax ka badelka alaabtan',
                   style: TextStyle(color: AppColors().fourthAppColor),
                 )));
           } else {
@@ -189,7 +193,8 @@ class _AddProductScrenState extends State<AddProductScren> {
                 backgroundColor: AppColors().secondaryAppColor,
                 elevation: 1,
                 content: Text(
-                  'You have Successfully Created a product expire date',
+                   language.get('language') == 'Eng' ?
+                  'You have Successfully Created a product expire date' : 'waad ku guuleysatay diwaangelinta alaabtan',
                   style: TextStyle(color: AppColors().fourthAppColor),
                 )));
           }

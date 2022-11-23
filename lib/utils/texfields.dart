@@ -2,8 +2,10 @@
 
 import 'package:baraarujiyeapp/Colors/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class InputFields extends StatelessWidget {
+  var language = Hive.box('language');
   TextEditingController productNameController = TextEditingController();
   String labeling;
   var keybtype;
@@ -25,7 +27,9 @@ class InputFields extends StatelessWidget {
     return TextFormField(
       validator: (value) {
         if (value!.isEmpty) {
-          return "this field can't be empty";
+          return language.get('language') == 'Eng'
+              ? "this field can't be empty!"
+              : "Khaanadani ma madhnaan karto!";
         }
         return null;
       },
